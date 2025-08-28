@@ -1,0 +1,131 @@
+-- ----------------------------------------------------------------------------
+--
+-- Module Name
+-- Author: William Shaffer (it@acorn-scholarship.org)
+--  
+-- Copyright (c) 2025 Acorn Scholarship Fund Inc.
+-- 
+-- ----------------------------------------------------------------------------
+
+-- The party module defines the Person, Educational Institution, and related
+-- classes.
+
+module Party
+
+imports
+    from Country 
+        types 
+            Country renamed Country;
+            USState renamed USState;
+
+exports types 
+        struct Address;
+        struct Person;
+        struct EducationalInstitution;
+        String;
+        PostalCode;
+        UserId;
+        Salutation;
+        struct DependentRelation;
+        struct MentorRelation;
+        struct Attendance;
+
+
+definitions
+
+-- ----------------------------------------------------------------------------
+types
+-- ---------------------------------------------------------------------------- 
+
+String = seq of char;
+
+PostalCode = seq of char;
+
+UserId = seq of char;
+InstId = seq of char;
+
+Date = seq of char;
+
+Year = nat1;
+
+Salutation = <Mr>
+|  <Ms> 
+|  <Mrs>
+|  <Dr>   
+;
+
+Address :: 
+    street     : String
+    unit       : String
+    city       : String
+    stateAbbrv : USState 
+    postalCode : PostalCode
+    country    : Country
+    ;
+
+Person :: 
+    userId     : UserId
+    salutation : Salutation
+    nameLast   :  String
+    nameFirst  : String
+    suffix     : String
+    address    : Address
+    ;
+
+EducationalInstitution ::
+    instId  : InstId
+    name    : String
+    contact : String 
+    address : Address
+    ;
+
+MentorRelation ::
+    createDate      : Date
+    endDate         : Date
+    mentor          : UserId
+    associate       : UserId
+    ;
+
+DependentRelation :: 
+    createDate      : Date
+    endDate         : Date
+    associate       : UserId
+    dependent       : UserId
+    ;    
+
+TermType = <Summer>
+|   <Fall>
+|   <Spring>
+;
+
+Attendance :: 
+    createDate      : Date
+    endDate         : Date 
+    term            : TermType
+    year            : Year 
+    associate       : UserId
+    dependent       : UserId
+    school          : InstId
+    ;
+
+-- ----------------------------------------------------------------------------
+values
+-- ----------------------------------------------------------------------------
+
+
+-- ----------------------------------------------------------------------------
+functions
+-- ----------------------------------------------------------------------------
+
+
+-- ----------------------------------------------------------------------------
+-- State
+-- ----------------------------------------------------------------------------
+
+
+-- ----------------------------------------------------------------------------
+operations
+-- ----------------------------------------------------------------------------
+
+
+end Party
