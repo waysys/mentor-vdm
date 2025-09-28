@@ -1,28 +1,33 @@
 -- ----------------------------------------------------------------------------
 --
--- Forms
+-- Alert
 -- Author: William Shaffer (it@acorn-scholarship.org)
 --  
 -- Copyright (c) 2025 Acorn Scholarship Fund Inc.
 -- 
 -- ----------------------------------------------------------------------------
 
-module Forms
+-- The Alert module defines the Alert base class and Event class.
+
+module Alert
 
 imports
     from Party 
         types 
             Person renamed Person,
-    from Alert 
-        types
-            Alert renamed Alert;
- 
- exports
-    types 
-        FormStatus;
-        Form;
-        FormAlert;
+    from Date
+        types 
+            Date renamed Date,
+    from Common
+        types 
+            String renamed String;
 
+exports
+    types
+        EventType;
+        Event;
+        AlertStatus;
+        Alert;
 
 definitions
 
@@ -30,23 +35,27 @@ definitions
 types
 -- ---------------------------------------------------------------------------- 
 
-FormStatus = <Draft>
-| <Submitted> 
-| <Approved>
-| <BoardApproved>
-| <Paid>
-| <Withdrawn>
+EventType = <Reminder>
+| <FormEvent>
+| <Approval>
+| <Task>
 ;
 
-Form::
-    submitter: Person
-    reviewer : Person
-    status   : FormStatus
+Event ::
+    eventType : EventType
+    eventDate : Date
+    description : String
     ;
 
-FormAlert :: 
-    alert : Alert
-    form  : Form
+AlertStatus = <InComplete>
+| <Completed>
+;
+
+Alert :: 
+    receiver    : Person 
+    sender      : Person
+    event       : Event
+    alertStatus : AlertStatus
     ;
 
 -- ----------------------------------------------------------------------------
@@ -59,8 +68,6 @@ functions
 -- ----------------------------------------------------------------------------
 
 
-
-
 -- ----------------------------------------------------------------------------
 -- State
 -- ----------------------------------------------------------------------------
@@ -71,4 +78,4 @@ operations
 -- ----------------------------------------------------------------------------
 
 
-end Forms
+end Alert

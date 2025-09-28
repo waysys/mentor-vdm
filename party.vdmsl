@@ -1,6 +1,6 @@
 -- ----------------------------------------------------------------------------
 --
--- Module Name
+-- Party
 -- Author: William Shaffer (it@acorn-scholarship.org)
 --  
 -- Copyright (c) 2025 Acorn Scholarship Fund Inc.
@@ -24,7 +24,8 @@ imports
             toString: seq of char -> String renamed toString,
     from Date
         types 
-            Date;
+            Date renamed Date;
+
 
 exports 
     types 
@@ -109,7 +110,7 @@ Attendance ::
     createDate      : Date
     endDate         : Date 
     term            : TermType
-    year            : Year 
+    year            : nat1 
     associate       : UserId
     dependent       : UserId
     school          : InstId
