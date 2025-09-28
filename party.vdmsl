@@ -16,20 +16,29 @@ imports
     from Country 
         types 
             Country renamed Country;
-            USState renamed USState;
+            USState renamed USState,
+    from Common
+        types 
+            String renamed String;
+        functions
+            toString: seq of char -> String renamed toString,
+    from Date
+        types 
+            Date;
 
-exports types 
+exports 
+    types 
         struct Address;
         struct Person;
         struct EducationalInstitution;
-        String;
         PostalCode;
         UserId;
         Salutation;
         struct DependentRelation;
         struct MentorRelation;
         struct Attendance;
-
+    functions
+        salutationToString: Salutation -> String;
 
 definitions
 
@@ -37,16 +46,12 @@ definitions
 types
 -- ---------------------------------------------------------------------------- 
 
-String = seq of char;
-
 PostalCode = seq of char;
+PhoneNumber = seq of char;
+Email = seq of char;
 
 UserId = seq of char;
 InstId = seq of char;
-
-Date = seq of char;
-
-Year = nat1;
 
 Salutation = <Mr>
 |  <Ms> 
@@ -70,6 +75,8 @@ Person ::
     nameFirst  : String
     suffix     : String
     address    : Address
+    phoneNumber: PhoneNumber
+    email      : Email
     ;
 
 EducationalInstitution ::
@@ -112,11 +119,27 @@ Attendance ::
 values
 -- ----------------------------------------------------------------------------
 
+Salutations : set of Salutation = {
+    <Mr>, <Ms>, <Mrs>, <Dr>
+};
 
 -- ----------------------------------------------------------------------------
 functions
 -- ----------------------------------------------------------------------------
 
+-- salutationToString returns a string version of the salutation argument.
+salutationToString: Salutation -> String
+salutationToString(salutation) ==
+    let  
+        cors = {
+            <Mr> |-> "Mr.",
+            <Ms> |-> "Ms.",
+            <Mrs>|-> "Mrs.",
+            <Dr> |-> "Dr."
+        } 
+    in 
+        toString(cors(salutation))
+pre salutation in set Salutations
 
 -- ----------------------------------------------------------------------------
 -- State

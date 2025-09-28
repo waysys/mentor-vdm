@@ -1,0 +1,217 @@
+-- ----------------------------------------------------------------------------
+--
+-- Month - calculations involving months
+-- Author: William Shaffer (wshaffer@waysysweb.com)
+-- Date:   28 November 2024
+--
+-- This module defines characteristics of months.
+-- Copyright (c) 2024 William Shaffer
+-- ----------------------------------------------------------------------------
+
+module Month
+
+imports
+    from Year 
+        functions
+            isLeapYear: nat1 -> bool renamed isLeapYear
+
+exports
+    types
+        Month;
+
+    values
+        January: Month;
+        February : Month;
+        March : Month;
+        April : Month;
+        May : Month;
+        June : Month;
+        July : Month;
+        August : Month;
+        September : Month;
+        October : Month;
+        November : Month;
+        December: Month;
+
+    functions
+        isMonthNumber: int -> bool;
+        monthToNat: Month -> nat1;
+        natToMonth: nat1 -> Month;
+        toString: Month -> seq of char;
+        daysInMonth: Month * nat1 -> nat1;
+        daysInMonths: Month * nat1 -> nat;
+        before: Month * Month -> bool;
+        priorMonth: Month -> Month;
+        nextMonth: Month -> Month;
+
+definitions
+
+-- ----------------------------------------------------------------------------
+types
+-- ----------------------------------------------------------------------------
+
+Month = <January>
+    |   <February>
+    |   <March>
+    |   <April>
+    |   <May>
+    |   <June>
+    |   <July>
+    |   <August>
+    |   <September>
+    |   <October>
+    |   <November>
+    |   <December>
+ord month1 < month2 == monthToNat(month1) < monthToNat(month2);
+
+MonthInt = map  Month to nat1;
+MonthString = map Month to (seq of char);
+
+-- ----------------------------------------------------------------------------
+values
+-- ----------------------------------------------------------------------------
+
+-- daysPerMonth is the number of days in each month in a non-leap year.
+daysPerMonth : MonthInt = {
+    <January>    |-> 31, 
+    <February>   |-> 28,
+    <March>      |-> 31,
+    <April>      |-> 30,
+    <May>        |-> 31,
+    <June>       |-> 30,
+    <July>       |-> 31,
+    <August>     |-> 31,
+    <September>  |-> 30,
+    <October>    |-> 31,
+    <November>   |-> 30,
+    <December>   |-> 31
+};
+
+monthNumbers : MonthInt = {
+    <January>    |-> 1, 
+    <February>   |-> 2,
+    <March>      |-> 3,
+    <April>      |-> 4,
+    <May>        |-> 5,
+    <June>       |-> 6,
+    <July>       |-> 7,
+    <August>     |-> 8,
+    <September>  |-> 9,
+    <October>    |-> 10,
+    <November>   |-> 11,
+    <December>   |-> 12    
+};
+
+monthNames : MonthString = {
+    <January>    |-> "Jan", 
+    <February>   |-> "Feb",
+    <March>      |-> "Mar",
+    <April>      |-> "Apr",
+    <May>        |-> "May",
+    <June>       |-> "Jun",
+    <July>       |-> "Jul",
+    <August>     |-> "Aug",
+    <September>  |-> "Sep",
+    <October>    |-> "Oct",
+    <November>   |-> "Nov",
+    <December>   |-> "Dec"        
+};
+
+monthList : seq of Month = [
+    <January>,
+    <February>,
+    <March>,
+    <April>,
+    <May>,
+    <June>,
+    <July>,
+    <August>,
+    <September>,
+    <October>,
+    <November>,
+    <December>
+];
+
+January : Month = <January>;
+February : Month = <February>;
+March : Month = <March>;
+April : Month = <April>;
+May : Month = <May>;
+June : Month = <June>;
+July : Month = <July>;
+August : Month = <August>;
+September : Month = <September>;
+October : Month = <October>;
+November : Month = <November>;
+December : Month = <December>;
+
+-- ----------------------------------------------------------------------------
+functions
+-- ----------------------------------------------------------------------------
+
+-- isMonthNumber checks that a number is between 1 through 12
+isMonthNumber: int -> bool 
+isMonthNumber(monthNumber) ==
+    if monthNumber < 1 then false 
+    elseif monthNumber > 12 then false 
+    else true;
+
+-- monthToNat returns the month number for the specified month
+monthToNat: Month -> nat1
+monthToNat(month) ==
+    monthNumbers(month);
+
+-- natToMonth returns the month for the speccified month number.
+natToMonth: nat1 -> Month 
+natToMonth(monthNumber) == 
+    monthList(monthNumber)
+pre isMonthNumber(monthNumber);
+
+-- toString returns a string representation of the month
+toString: Month -> seq of char 
+toString(month) == 
+    monthNames(month);
+
+-- daysInMonth return the number of days in the specified month and year.
+daysInMonth: Month * nat1 -> nat1
+daysInMonth(month, year) ==
+    if isLeapYear(year) and (month = <February>) then daysPerMonth(month) + 1
+    else daysPerMonth(month);
+
+-- daysInMonths computes total days in all the months up to 
+-- the specified months.
+daysInMonths: Month * nat1 -> nat 
+daysInMonths(month, year) == 
+    calcDaysInMonths(January, month, year, 0);
+    
+calcDaysInMonths: Month * Month * nat1 * nat -> nat
+calcDaysInMonths(currentMonth, finalMonth, year, initialDays) == 
+    if currentMonth = finalMonth then initialDays 
+
+    else 
+        let 
+            days = initialDays + daysInMonth(currentMonth, year),
+            nxtMonth = nextMonth(currentMonth)
+        in 
+            calcDaysInMonths(nxtMonth, finalMonth, year, days)
+    measure is not yet specified;
+
+
+-- before returns true if the first month is before the second month. 
+before: Month * Month -> bool 
+before(month1, month2) == 
+    monthToNat(month1) < monthToNat(month2);
+
+-- priorMonth returns the month before the specified month
+priorMonth: Month -> Month
+priorMonth(month) ==
+    if month = January then December 
+    else natToMonth(monthToNat(month) - 1);
+
+-- nextMonth returns the month after the specified month
+nextMonth: Month -> Month 
+nextMonth(month) == 
+    if month = December then January 
+    else natToMonth(monthToNat(month) + 1);
+
+end Month

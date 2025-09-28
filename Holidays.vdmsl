@@ -1,0 +1,397 @@
+-- ----------------------------------------------------------------------------
+--
+-- Holidays - Specification for U.S. Federal holidays and Easter.
+-- Author: William Shaffer (wshaffer@waysysweb.com)
+-- Date: 09 Dec 2023
+--
+-- This module extends the Date module by providing a specification
+-- of U.S. federal holidays and Easter.
+--
+-- Some of these holidays are positional, meaning that they occur on a 
+-- specified day of the week in a month. The remaining holidays occur on 
+-- specified dates. However, for this second category, if the date occurs 
+-- on a Saturday, the holiday is observed on the preceding Friday. If the 
+-- date occurs on a Sunday, the holiday is observed on the following Monday. 
+-- Easter is not a federal holiday and is always observed on Sunday.
+-- ----------------------------------------------------------------------------
+module Holidays
+
+imports
+    from Month
+        types
+            Month renamed Month;
+
+        values
+            January: Month renamed January;
+            February : Month renamed February;
+            April : Month renamed April;
+            May : Month renamed May;
+            June : Month renamed June;
+            July : Month renamed July;
+            September : Month renamed September;
+            October : Month renamed October;
+            November : Month renamed November;
+            December: Month renamed December;
+
+        functions 
+            daysInMonth: Month * nat1 -> nat1,
+
+    from Date
+        types 
+            Date renamed Date;
+
+        functions
+            create: Month * nat1 * nat1 -> Date;
+            increment: Date -> Date;
+            decrement: Date -> Date;
+            before: Date * Date -> bool;
+            after: Date * Date -> bool renamed after;
+            addDay : Date * int -> Date,
+
+    from DateRange
+        types
+            DateRange renamed DateRange;
+
+        functions
+            create: Date * Date -> DateRange;
+            toSet: DateRange -> set of Date renamed toSet,    
+         
+    from Week
+        types
+            DayOfWeek renamed DayOfWeek;
+
+        values
+            Sunday renamed Sunday;
+            Monday renamed Monday;
+            Thursday renamed Thursday;
+            Saturday renamed Saturday;
+
+        functions
+            dayOfWeek: Date -> DayOfWeek; 
+
+exports
+        types
+            struct Holiday;
+
+        functions
+            -- holiday functions
+            newYearsDay: nat1 -> Holiday;
+            martinLutherKingBirthday: nat1 -> Holiday;
+            washingtonsBirthday: nat1 -> Holiday;
+             easter: nat1 -> Holiday;
+            memorialDay: nat1 -> Holiday;
+            juneteenth: nat1 -> Holiday;
+            independenceDay: nat1 -> Holiday;
+            laborDay: nat1 -> Holiday;
+            columbusDay: nat1 -> Holiday;
+            veteransDay: nat1 -> Holiday;
+            thanksgiving: nat1 -> Holiday;
+            christmas: nat1 -> Holiday;
+            
+            -- properties
+            getName: Holiday -> seq of char;
+            getActualDate: Holiday -> Date;
+            getObservedDate: Holiday -> Date;
+            getObservedDayOfWeek: Holiday -> DayOfWeek;
+
+            -- support functions
+            observedDate: Date -> Date;
+            nthDayOfMonth: Month * DayOfWeek * nat1 * nat1 -> Date;
+            lastWeekDayOfMonth: Month * nat1 * DayOfWeek -> Date;
+            dayOfWeekAfter: Date * DayOfWeek -> Date;
+
+definitions
+
+-- ----------------------------------------------------------------------------
+types
+-- ----------------------------------------------------------------------------
+
+-- Holiday provides the official name of the holiday, the actual date of the 
+-- holiday, and the day the holiday is observed by the U.S. government.
+Holiday ::
+    name : seq of char
+    actualDate : Date
+    observedDate : Date
+    observedDayOfWeek : DayOfWeek;
+
+-- ----------------------------------------------------------------------------
+values
+-- ----------------------------------------------------------------------------
+
+-- ----------------------------------------------------------------------------
+functions
+-- ----------------------------------------------------------------------------
+
+-- Holidays -------------------------------------------------------------------
+
+-- New Year's Day: fixed holiday.  If it falls on a weekend, the observed day
+-- is on Friday or Monday.
+newYearsDay: nat1 -> Holiday
+newYearsDay(year) ==
+    let
+        name = "New Year's Day",
+        day = 1
+    in
+        createFixedHoliday(name, January, day, year)
+pre year >= 1900;
+
+-- Birthday of Martin Luther King, Jr.: floating holiday -- third Monday in
+-- January. 
+martinLutherKingBirthday: nat1 -> Holiday 
+martinLutherKingBirthday(year) ==
+    let
+        name = "Birthday of Martin Luther King, Jr."
+    in
+        createFloatingHoliday(name, January, Monday, 3, year)
+pre year >= 1900;   
+
+-- Washington's Birthday: floating holiday -- third Monday in
+-- February.
+washingtonsBirthday: nat1 -> Holiday
+washingtonsBirthday(year) ==
+   let
+        name = "Washington's Birthday"
+    in
+         createFloatingHoliday(name, February, Monday, 3, year)
+pre year >= 1900;
+
+ -- Memorial nat1: floating holiday -- last Monday in May.
+ memorialDay: nat1 -> Holiday
+ memorialDay(year) ==
+    let 
+        name = "Memorial Day",
+        actualDate = lastWeekDayOfMonth(May , year, Monday),
+        observeDate = actualDate,
+        observedDayOfWeek = Week`dayOfWeek(observeDate)
+    in
+        mk_Holiday(name, actualDate, observeDate, observedDayOfWeek)
+pre year >= 1900;
+
+-- Juneteenth National Independence Day: fixed holiday - June 19
+juneteenth: nat1 -> Holiday
+juneteenth(year) ==
+   let 
+        name = "Juneteenth National Independence Day",
+        day = 19
+    in
+        createFixedHoliday(name, June, day, year)
+pre year >= 1900;
+
+-- Independence Day: fixed holiday - July 4
+independenceDay: nat1 -> Holiday
+independenceDay(year) ==
+    let 
+        name = "Independence Day",
+        day = 4
+    in 
+        createFixedHoliday(name, July, day, year)
+pre year >= 1900;
+
+-- Labor Day: floating holiday - first Monday in September
+laborDay: nat1 -> Holiday
+laborDay(year)  ==
+    let 
+        name = "Labor Day"
+    in
+        createFloatingHoliday(name, September, Monday, 1, year)
+pre year >= 1900;
+
+-- Columbus Day: floating holiday - second Monday in October
+columbusDay: nat1 -> Holiday 
+columbusDay(year) == 
+    let 
+        name = "Columbus Day"
+    in
+        createFloatingHoliday(name, October, Monday, 2, year)
+pre year >= 1900;   
+
+-- Veteran's Day: fixed holiday - November 11
+veteransDay: nat1 -> Holiday
+veteransDay(year) ==
+    let 
+        name = "Veteran's Day",
+        day = 11
+    in 
+        createFixedHoliday(name, November, day, year)
+pre year >= 1900; 
+
+-- Thanksgiving Day: floating holiday - Fourth Thursday in November
+thanksgiving: nat1 -> Holiday
+thanksgiving(year) ==
+    let 
+        name = "Thanksgiving Day"
+    in 
+        createFloatingHoliday(name, November, Thursday, 4, year)
+pre year >= 1900; 
+
+-- Christmas Day: fixed holiday - December 25
+christmas: nat1 -> Holiday
+christmas(year) == 
+    let 
+        name = "Christmas Day",
+        day = 25
+    in 
+        createFixedHoliday(name, December, day, year)
+ pre year >= 1900;     
+
+ -- Easter --------------------------------------------------------------------
+
+ -- easter: Sunday after pashcal moon.  Algorithm based on Reingold and 
+ -- Dershowitz, Calendrical Calculation: The Millennium Edition.
+ -- Easter can never occur before March 22 or later than April 25
+ easter: nat1 -> Holiday
+ easter(year) ==
+    let 
+        yr = year,
+        nineteen = 19,
+        century = (yr div 100) + 1,
+        shiftedEpact = (14 + (11 * (yr mod 19)) - ((3 * century) div 4) + ((5 + 8 * century) div 25)) mod 30,
+        adjustedEpact = if shiftedEpact = 0 or ( (shiftedEpact = 1) and (10 < (yr mod 19)))
+            then shiftedEpact + 1
+            else shiftedEpact,
+        paschalMoon = Date`addDay(Date`create(April, nineteen, year), -adjustedEpact),
+        easterSunday = dayOfWeekAfter(paschalMoon, Sunday) 
+    in  
+        mk_Holiday("Easter", easterSunday, easterSunday, Sunday)
+ pre year >= 1900;
+
+-- Properties -----------------------------------------------------------------
+
+-- getName returns the name of the holiday
+getName: Holiday -> seq of char
+getName(holiday) ==
+    holiday.name;
+
+-- getActualDate returns the actual date of the holiday.
+getActualDate: Holiday -> Date
+getActualDate(holiday) ==
+    holiday.actualDate;
+
+-- getObservedDate returns the observed date of the holiday.
+getObservedDate: Holiday -> Date
+getObservedDate(holiday) ==
+    holiday.observedDate;
+
+-- getObservedDayOfWeek returns the day of week of the observed date.date 
+getObservedDayOfWeek: Holiday -> DayOfWeek
+getObservedDayOfWeek(holiday) ==
+    holiday.observedDayOfWeek;
+
+-- Supporting functions -------------------------------------------------------
+
+-- createFixedHoliday creates a Holiday structure for the specified fixed 
+-- US federal holiday.
+createFixedHoliday: seq of char * Month * nat1 * nat1  -> Holiday
+createFixedHoliday(name, month, day, year) ==
+    let 
+        actualDate = Date`create(month, day, year),
+        observeDate = observedDate(actualDate),
+        observedDayOfWeek = Week`dayOfWeek(observeDate)
+    in 
+        mk_Holiday(name, actualDate, observeDate, observedDayOfWeek)
+pre year >= 1900;
+
+-- createFloatingHoliday creates a Holiday structure for a floating 
+-- US federal holiday.  Cannot be used for Memorial nat1.
+createFloatingHoliday: seq of char * Month * DayOfWeek * nat1 * nat1  -> Holiday
+createFloatingHoliday(name, month, dayOfWeek, position, year) ==
+   let 
+        actualDate = nthDayOfMonth(month , dayOfWeek, position, year),
+        observeDate = actualDate,
+        observedDayOfWeek = Week`dayOfWeek(observeDate)
+    in
+        mk_Holiday(name, actualDate, observeDate, observedDayOfWeek)
+pre year >= 1900;     
+
+-- observedDate implements the U.S federal rule: If a holiday falls on a Saturday, 
+-- for most Federal employees, the preceding Friday will be treated as a holiday 
+-- for pay and leave purposes. (See 5 U.S.C. 6103(b).) If a holiday falls on a 
+-- Sunday, for most Federal employees, the following Monday will be treated as a 
+-- holiday for pay and leave purposes. 
+observedDate: Date -> Date
+observedDate(date) ==
+    cases Week`dayOfWeek(date):
+        (Saturday) -> Date`decrement(date),
+        (Sunday) -> Date`increment(date),
+        others -> date
+    end;
+
+-- nthDayOfMonth calculates the positional date based on the month, day of the week,
+-- the position in the month (first, second, third, etc.), and year. 
+nthDayOfMonth: Month * DayOfWeek * nat1 * nat1 -> Date
+nthDayOfMonth(month, dayOfWeek, position, year) ==
+    let
+        day = 1,
+        date = Date`create(month, day, year)
+    in 
+        computeNthDayOfMonth(month, dayOfWeek, position, date)
+pre position >= 1 and position <= 4;
+
+-- computeNthDayOfMOnth performs the actual computation of the nthDayOfThe nat1. 
+computeNthDayOfMonth: Month * DayOfWeek * nat1 * Date -> Date
+computeNthDayOfMonth(month, dayOfWeek, position, date) ==
+    if position = 1 and Week`dayOfWeek(date) = dayOfWeek
+        then date
+    elseif position > 1 and Week`dayOfWeek(date) = dayOfWeek 
+        then computeNthDayOfMonth(month, dayOfWeek, position - 1, Date`addDay(date, 7))
+    else computeNthDayOfMonth(month, dayOfWeek, position, Date`increment(date))
+pre position >= 1 and position <= 4
+measure is not yet specified;
+
+-- lastWeekDayOfMonth calculates the last day of the week in a month and year. 
+lastWeekDayOfMonth: Month * nat1 * DayOfWeek -> Date
+lastWeekDayOfMonth(month, year, dayOfWeek) ==
+    let
+        daysInMonth = Month`daysInMonth(month, year),
+        lastDateOfMonth = Date`create(month, daysInMonth, year)
+    in
+        computeLastWeekDayOfMonth(month, year, dayOfWeek, lastDateOfMonth);
+
+-- computeLastWeekDayOfMonth calculates the date of the last day of the week. 
+computeLastWeekDayOfMonth: Month * nat1 * DayOfWeek * Date -> Date
+computeLastWeekDayOfMonth(month, year, dayOfWeek, date) == 
+    if Week`dayOfWeek(date) = dayOfWeek then date
+    else computeLastWeekDayOfMonth(month, year, dayOfWeek, Date`decrement(date))
+measure is not yet specified;
+
+-- dayOfWeekAfter determines the date of the day with a day of the week
+-- equal to the specified day of the week and after the specified  
+-- base date. 
+dayOfWeekAfter: Date * DayOfWeek -> Date 
+dayOfWeekAfter(baseDate, dayOfWeek) ==
+    dayOfWeekAfterBaseDate(baseDate, dayOfWeek, baseDate);
+
+-- dayOfWeekAfterBaseDate calculates the date of the day with a day of 
+-- the week equal to the specified day of the week and after specified 
+-- base date. 
+dayOfWeekAfterBaseDate: Date * DayOfWeek * Date -> Date 
+dayOfWeekAfterBaseDate(date, dayOfWeek, baseDate) ==
+    if date = baseDate then dayOfWeekAfterBaseDate(Date`increment(date), dayOfWeek, baseDate)
+    elseif Week`dayOfWeek(date) = dayOfWeek then date 
+    else dayOfWeekAfterBaseDate(Date`increment(date), dayOfWeek, baseDate)
+pre not Date`before(date, baseDate)
+post dayOfWeekAfterPost(RESULT, dayOfWeek, baseDate)
+measure is not yet specified;
+-- Postcondition:
+--    result > baseDate and Date`dayOfWeek(result) = dayOfWeek and
+--    not exist date : Date & date <> result and date <> baseDate and 
+--       DateRange`inRange(DateRange`create(baseDate, result), date)
+
+-- dayOfWeekAfterPost returns true if the post condition to dayOfWeekAfterBaseDate is
+-- satisfied.
+dayOfWeekAfterPost: Date * DayOfWeek * Date -> bool 
+dayOfWeekAfterPost(result, dayOfWeek, baseDate) == 
+    let 
+        afterBaseDate = after(result, baseDate),
+        rightDayOfWeek = (Week`dayOfWeek(result) = dayOfWeek),
+        -- check that there is no other date between the baseDate and the result
+        -- with the same day of the week.
+        dateRange = DateRange`create(baseDate, result),
+        dateSet = toSet(dateRange),
+        anotherDate = exists date in set dateSet & Week`dayOfWeek(date) = dayOfWeek and 
+            date <> result and date <> baseDate
+    in 
+        afterBaseDate and rightDayOfWeek and (not anotherDate)
+
+
+end Holidays

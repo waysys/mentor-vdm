@@ -1,0 +1,61 @@
+-- ----------------------------------------------------------------------------
+--
+-- Month - calculations involving years
+-- Author: William Shaffer (wshaffer@waysysweb.com)
+-- Date:   28 November 2024
+--
+-- This module defines characteristics of months.
+-- Copyright (c) 2024 William Shaffer
+-- ----------------------------------------------------------------------------
+
+module Year
+
+exports
+    values
+        MaxYear : nat1;
+        MinYear : nat1;
+ 
+    functions
+        isYear: nat1 -> bool;
+        isLeapYear: nat1 -> bool;
+        daysInYear: nat1 -> nat1;
+
+definitions
+
+-- ----------------------------------------------------------------------------
+values
+-- ----------------------------------------------------------------------------
+
+-- MaxYear is the largest year handled by WayDate.
+MaxYear : nat1 = 3999;
+
+-- MinYear is the minimum year handled by WayDate. Since the Gregorian
+-- calendar did not begin until 1582, there seems little point in using this
+-- class for dates prior to 1582. 1601 is a convenient year for the epoch.
+MinYear : nat1 = 1601;
+
+-- ----------------------------------------------------------------------------
+functions
+-- ----------------------------------------------------------------------------
+
+-- isYear returns true if the year is a valid year
+isYear: nat1 -> bool
+isYear(year) == 
+    if year < MinYear or year > MaxYear then false 
+    else true;
+    
+-- isLeapYear returns true if the year is a leap year.
+isLeapYear: nat1 -> bool
+isLeapYear(year) ==
+    if year mod 400 = 0 then true
+    elseif year mod 100 = 0 then false 
+    elseif year mod 4 = 0 then true 
+    else false;
+
+-- daysInYear returns the number of days in the specified year.
+daysInYear: nat1 -> nat1
+daysInYear(year) ==
+    if isLeapYear(year) then 366
+    else 365;    
+
+end Year
