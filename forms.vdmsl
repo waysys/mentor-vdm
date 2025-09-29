@@ -12,10 +12,17 @@ module Forms
 imports
     from Party 
         types 
-            Person renamed Person,
+            Person renamed Person;
+            EducationalInstitution renamed EducationalInstitution,
     from Alert 
         types
-            Alert renamed Alert;
+            Alert renamed Alert,
+    from Date
+        types 
+            Date renamed Date,
+    from Common
+        types 
+            String renamed String;
  
  exports
     types 
@@ -38,15 +45,43 @@ FormStatus = <Draft>
 | <Withdrawn>
 ;
 
-Form::
+Form ::
     submitter: Person
     reviewer : Person
     status   : FormStatus
     ;
 
+WorkStatus = <FullTime>
+| <PartTime>
+;
+
+EnrollmentStatus = <Freshman>
+| <Sophomore>
+| <Junior>
+| <Seniro>
+| <Graduate>
+| <Vocational>
+;
+
+AssociateApplication :: 
+    form : Form
+    cypressDepartment : String
+    dateHired : Date
+    workStatus : WorkStatus
+    averageHours : nat1
+    educationalInstitution : EducationalInstitution
+    program : String
+    enrollmentStatus : EnrollmentStatus
+    studentNumber : String
+    questionFieldOfStudy : String
+    questionYourself : String
+    ;
+
+FormType = Form | AssociateApplication;
+
 FormAlert :: 
     alert : Alert
-    form  : Form
+    form  : FormType
     ;
 
 -- ----------------------------------------------------------------------------

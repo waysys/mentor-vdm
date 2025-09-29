@@ -78,6 +78,7 @@ Person ::
     address    : Address
     phoneNumber: PhoneNumber
     email      : Email
+    dateBirth  : Date
     ;
 
 EducationalInstitution ::
